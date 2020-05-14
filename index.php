@@ -1,4 +1,7 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', TRUE);
+ini_set('display_startup_errors', TRUE);
 //require 'tests/AlphabetTest.php';
 require 'src/Automatons/Components/Alphabet/Symbol.php';
 require 'src/Automatons/Exceptions/DuplicateItemException.php';
