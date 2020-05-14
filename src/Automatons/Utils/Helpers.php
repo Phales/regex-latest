@@ -265,14 +265,17 @@ class Helpers
 	 * @param bool
 	 * @return bool
 	 */
-	static function isInPartition(&$partition, StateSet $set){
+	static function isInPartition(&$partition, StateSet $set, $replace_items=FALSE){
 		$compteur = 0;
-		foreach($partition as $stateset){
-			if($stateset->isEqualTo($set)){
-				$compteur++;
+		foreach($partition as &$stateset){
+			foreach($set as $s){
+				if($stateset->has($s, $replace_items)){
+					$compteur++;
+				}
 			}
+			
 		}
-		if($compteur==count($set)){
+		if($compteur!=0){
 			return TRUE;
 		}else{
 			return FALSE;
@@ -336,16 +339,33 @@ class Helpers
 
 				$partition2 = $pta_derive->fusion_determ();
 
+				/*echo "Partition 2";
+				foreach($partition2 as $p2){
+					foreach($p2 as $s){
+						var_dump($s);
+					}
+				}*/
+
 				$tmp2 = clone($pta);
 				$pta_derive_2 = $tmp2->derive($partition2);
 
+				/*echo "Derive 2";
+				foreach($pta_derive_2->getTransitions() as $p2){
+					var_dump("From : ", $p2->getFrom());
+					foreach($p2->getTo() as $to){
+						var_dump("To : ", $to);
+					}
+					var_dump("On : ", $p2->getOn());
+				}*/
+
 				if($pta_derive_2->compatibleToSample($e_negatif)){
-					$pta = $pta_derive_2;
+					$pta =  $pta_derive_2;
 					$partition = $partition2;
-				break;
+					break;
 				}
 			}
 		}
+		//$pta->determinize();
 		return $pta;
 	}
 

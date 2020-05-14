@@ -169,7 +169,7 @@ var_dump($automate->IsDeterministic());
 
 echo "MCA";*/
 
-/*$mca = Helpers::mca(["aa", "ab","bab", "abc"]);
+/*$mca = Helpers::mca(["ab", "abcd","bab", "abc"]);
 
 
 
@@ -215,7 +215,7 @@ echo "MCA";*/
     </tr>
 </table>
 <?php
-
+/*
 echo "IsInPartition";
 
 $state_set_0 = new StateSet;
@@ -246,17 +246,17 @@ $state_set_6->add(new State("abc"));
 $state_set_7 = new StateSet;
 //$state_set_7->add(new State("abc"));
 
-$partition = [ $state_set_2, $state_set_3, $state_set_4, $state_set_5, $state_set_6, $state_set_7, $state_set_1];
+$partition = [ $state_set_2, $state_set_3, $state_set_4, $state_set_5, $state_set_6, $state_set_7, $state_set_1];*/
 
-$part = $mca->getPartitionPositive();
+/*$part = $mca->getPartitionPositive();
 
 foreach($part as $p){
     var_dump($p->getItems());
-}
+}*/
 
 
 
-$pca_1 = clone($mca);
+/*$pca_1 = clone($mca);
 $pca_1 = $pca_1->derive($mca->getPartitionPositive());
 
 echo "États";
@@ -280,8 +280,8 @@ foreach($pca_1->getTransitions() as $trans){
     }
     var_dump("On : ",$trans->getOn());
 }
-*/
-/*var_dump(Helpers::isInPartition($partition, $state_set_6));
+
+var_dump(Helpers::isInPartition($partition, $state_set_6));
 
 foreach($partition as $part){
     var_dump($part->getItems());
@@ -293,9 +293,9 @@ Helpers::removeDoubles($partition);
 
 foreach($partition as $part){
     var_dump($part->getItems());
-}
+}*/
 
-echo "Partition Positive";
+/*echo "Partition Positive";
 
 $partition_pos = $mca->getPartitionPositive();
 
@@ -381,7 +381,7 @@ var_dump($pta->compatible("bab"));*/
 echo "RPNI";
 echo "<br>";
 
-$rpni = Helpers::rpni(["aaa", "aaba", "ababa", "bb", "bbaaa"], ["aa"]);//I+ = "Velo", "Moto", "Couture", "Voirie", "Voicure"|"aaa", "aaba", "ababa", "bb", "bbaaa" OR "a", "ab","bab", "abc"/I-="Voiture", "Coirie"|"aa", "ab", "aaaa", "ba"
+$rpni = Helpers::rpni(["TP5", "TP2", "TD1"], ["TD"]);//I+ = "Velo", "Moto", "Couture", "Voirie", "Voicure"|"aaa", "aaba", "ababa", "bb", "bbaaa" OR "a", "ab","bab", "abc"/I-="Voiture", "Coirie"|"aa", "ab", "aaaa", "ba"
 
 echo "Transitions RPNI";
 
@@ -407,4 +407,4 @@ var_dump($rpni->getFinalStates());
 
 var_dump($rpni->IsDeterministic());
 
-var_dump($rpni->compatible("aa"));
+var_dump($rpni->compatible("TP2"));

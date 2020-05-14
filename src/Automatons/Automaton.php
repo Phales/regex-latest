@@ -104,6 +104,7 @@ class Automaton
 		if(!$this->isDeterministic()){
 
 			$this->removeEpsilon();
+			$this->mergeTransitions();
 
 			$states = new StateSet;
 			$transitions = new TransitionSet;
@@ -127,9 +128,9 @@ class Automaton
 					$target = Utils\Helpers::joinStates($tos);
 					Utils\Helpers::memorySaveAdd($states, $target);
 
-					var_dump($target);
+					//var_dump($target);
 					$trans = new Transition($new, new StateSet(array($target)), $symbol);
-					$this->transitions->has($trans) && !$transitions->has($trans,TRUE, TRUE);
+					$this->transitions->has($trans, TRUE, TRUE) && !$transitions->has($trans,TRUE, TRUE);
 
 					!$queue->has($tos) && $queue->add($tos);
 
@@ -144,7 +145,7 @@ class Automaton
 			$this->construct($states, $this->alphabet, $transitions, $initials, $finals);
 			//$this->removeFreeStates();
 			//$this->removeIllegalTransitions();
-			$this->mergeTransitions();
+			
 			$this->deterministic = TRUE;
 		}
 		return $this;
@@ -267,6 +268,8 @@ class Automaton
 	/** @return bool */
 	private function discoverDeterminism()
 	{
+		$this->mergeTransitions();
+
 		if ($this->alphabet->hasEpsilon() || count($this->initials) > 1) {
 			return FALSE;
 		}
@@ -446,7 +449,11 @@ class Automaton
 		$initials = new StateSet;
 		$finals = new StateSet;
 		$transitions = new TransitionSet;
-		$this->mergeTransitions();
+		//$this->mergeTransitions();
+
+		foreach($partition as $part){
+			//var_dump($part);
+		}
 
 		foreach($partition as $set){
 			$joined_state = Helpers::joinStates($set);
@@ -455,25 +462,28 @@ class Automaton
 			$this->finals->has($joined_state) && !$finals->has($joined_state, TRUE, TRUE);
 		}
 
-		$set_state = clone($states);
-
-		foreach($set_state as $new_state){
-			foreach($this->states as $state){
-				$set = new StateSet(array($state));
-				if($set->has($new_state)){
-					foreach($this->alphabet as $symbol){
-						$tmp_trans = $this->transitions->filterByState($state)->filterBySymbol($symbol);
-						if(count($tmp_trans)){
-							foreach($tmp_trans as $tmp){
-								$joined_state = Helpers::joinStates($tmp->getTo());
-								$trans = new Transition($new_state, new StateSet(array($joined_state)), $tmp->getOn());
-								$set_state->has($new_state) && $set_state->has($joined_state) && !$transitions->has($trans, TRUE, TRUE);
+		foreach($states as $new_state){
+			foreach($this->alphabet as $symbol){
+				$to_set = new StateSet;
+				$tos = NULL;
+				foreach($this->states as $state){
+					if($new_state->isEqualTo($state)){
+						$tos = $this->getTosBySet(new StateSet(array($state)), $symbol);
+						if(count($tos)){
+							foreach($tos as $to){
+								!$to_set->has($to, TRUE, TRUE);
 							}
 						}
 					}
 				}
+				if(!is_null($tos) && count($to_set)){
+					$joined_state = Helpers::joinStates($to_set);
+					$trans = new Transition($new_state, new StateSet(array($joined_state)), $symbol);
+					$states->has($joined_state) && !$transitions->has($trans, TRUE, TRUE);
+				}
 			}
 		}
+
 		if(!count($this->alphabet)){
 			echo "Oh lala";
 		}
@@ -551,30 +561,14 @@ class Automaton
 		if(!Helpers::isInPartition($partition, $initials)){
 			$partition[] = $initials;
 		}
-
-		$transitions = $automaton->getTransitions();
-		foreach($transitions as $trans){
-			if(!Helpers::isInPartition($partition, $trans->getTo())){
-				$partition[] = $trans->getTo();
-				$joined_state = Helpers::joinStates($trans->getTo());
-				foreach($this->alphabet as $symbol){
-					$new_tos = new StateSet;
-					foreach($trans->getTo() as $state){
-						$tmp_trans = $this->transitions->filterByState($state)->filterBySymbol($symbol);
-						if(count($tmp_trans)){
-							$items = $tmp_trans->getItems();
-							foreach($items[0]->getTo() as $t){
-								!$new_tos->has($t, TRUE, TRUE);
-							}
-						}
-					}
-					if(count($new_tos)){
-						$new_trans = new Transition($joined_state, $new_tos, $symbol);
-						!$transitions->has($new_trans, TRUE, TRUE);
-					}
-				}
+		foreach($this->alphabet as $symbol){
+			$tos = $this->getTosBySet($initials, $symbol);
+			if(!Helpers::isInPartition($partition, $tos, TRUE)){
+				$partition[] = $tos;
 			}
+			$initials = $tos;
 		}
+		
 		return $partition;
 	}
 
@@ -591,13 +585,17 @@ class Automaton
 	 * @return bool
 	 */
 	function compatible($word){
-		$current = $this->initials;
+		$initials = clone($this->initials);
+		$transitions = clone($this->transitions);
+		$finals = clone($this->finals);
+
+		$current = $initials;
 		$error = FALSE;
 		for ($i=0; $i<strlen($word); $i++) {
 			$next = new StateSet; 
 			$c = $word[$i];
 			foreach($current as $s){
-				$trans = $this->transitions->filterByState($s)->filterBySymbol(new Symbol($c));
+				$trans = $transitions->filterByState($s)->filterBySymbol(new Symbol($c));
 				if(count($trans)){
 					foreach($trans as $t){
 						foreach($t->getTo() as $s_tmp){
@@ -614,7 +612,7 @@ class Automaton
 		}
 		if(!$error){
 			foreach($current as $state){
-				if($this->finals->has($state)){
+				if($finals->has($state)){
 					return TRUE;
 				}
 			}
@@ -661,6 +659,7 @@ class Automaton
 	/**
 	 * @param StateSet
 	 * @param Symbol
+	 * @return StateSet
 	 */
 	function getTosBySet(StateSet $set, Symbol $s) {
 		$tos = new StateSet;

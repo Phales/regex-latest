@@ -73,7 +73,7 @@ class StateSet extends Set
 		foreach ($this as $state) {
 			$new_state = Helpers::assembleUnique($tmp_state, $state);
 
-			if ($state->isEqualTo($new_state)) {
+			if ($tmp_state->isEqualTo($state)) {
 				return $state;
 			}
 		}
@@ -172,17 +172,17 @@ class StateSet extends Set
 	 * @param bool
 	 * @return bool
 	 */
-	function isEqualTo($set)
+	function isEqualTo($set, $replace_items=FALSE)
 	{
 		$compteur=0;
 		if(count($this)==count($set)){
 			foreach($set as $s){
-				if($this->has($s)){
+				if($this->has($s, $replace_items)){
 					$compteur++;
 				}
 			}
 		}
-		if($compteur==count($set)){
+		if($compteur!=0){
 			return TRUE;
 		}else{
 			return FALSE;
