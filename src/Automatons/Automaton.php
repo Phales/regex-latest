@@ -449,11 +449,7 @@ class Automaton
 		$initials = new StateSet;
 		$finals = new StateSet;
 		$transitions = new TransitionSet;
-		//$this->mergeTransitions();
-
-		foreach($partition as $part){
-			//var_dump($part);
-		}
+		$this->mergeTransitions();
 
 		foreach($partition as $set){
 			$joined_state = Helpers::joinStates($set);
@@ -478,15 +474,18 @@ class Automaton
 				}
 				if(!is_null($tos) && count($to_set)){
 					$joined_state = Helpers::joinStates($to_set);
+					//$joined_state = $states->getByName($joined_state->getName());
+					/*if($states->has($joined_state)){
+						var_dump("Pick");
+						$joined_state = $states->getByName($joined_state->getName());
+						var_dump($joined_state);	
+					}*/
 					$trans = new Transition($new_state, new StateSet(array($joined_state)), $symbol);
 					$states->has($joined_state) && !$transitions->has($trans, TRUE, TRUE);
 				}
 			}
 		}
 
-		if(!count($this->alphabet)){
-			echo "Oh lala";
-		}
 		$this->construct($states, $this->alphabet, $transitions, $initials, $finals);
 
 		//$this->removeIllegalTransitions();
@@ -556,19 +555,28 @@ class Automaton
 		
 		$partition = [];
 		//$automaton->mergeTransitions();
+
 		$initials = $this->initials;
 
 		if(!Helpers::isInPartition($partition, $initials)){
 			$partition[] = $initials;
 		}
-		foreach($this->alphabet as $symbol){
-			$tos = $this->getTosBySet($initials, $symbol);
-			if(!Helpers::isInPartition($partition, $tos, TRUE)){
-				$partition[] = $tos;
+
+		$set1 = clone($this->states);
+		$set2 = clone($this->states);
+		foreach($set1 as $state1){
+			$set = new StateSet;
+			!$set->has($state1, TRUE, TRUE);
+			foreach($set2 as $state2){
+				if($this->mergeable($state1, $state2)){
+					!$set->has($state2, TRUE, TRUE);
+				}
 			}
-			$initials = $tos;
+			if(!Helpers::isInPartition($partition, $set)){
+				$partition[] = $set;
+			}
 		}
-		
+
 		return $partition;
 	}
 
@@ -576,6 +584,7 @@ class Automaton
 	 * @return StateSet[]
 	 */
 	function fusion_determ(){
+		$this->mergeTransitions();
 		$this->determinize();
 		return $this->getPartitionPositive();
 	}
@@ -674,6 +683,73 @@ class Automaton
 			}
 		}
 		return $tos;
+	}
+
+	/**
+	 * @param State
+	 * @return bool
+	 */
+	function isStateEnd(State $state){
+		$trans = $this->transitions->filterByState($state);
+		if(!count($trans) && $this->finals->has($state)){
+			return TRUE;
+		}else{
+			return FALSE;
+		}
+	}
+
+	/**
+	 * @param StateSet
+	 * @return bool
+	 */
+	function isGroupeStateEnd(StateSet $set){
+		$compteur=0;
+		foreach($set as $state){
+			if($this->isStateEnd($state)){
+				$compteur++;
+			}
+		}
+		if($compteur!=0){
+			return TRUE;
+		}else{
+			return FALSE;
+		}
+	}
+
+	/**
+	 * @param State
+	 * @param string
+	 * @return void
+	 */
+	function getStr(State $state, &$string){
+		$trans = $this->transitions->filterByTo($state);
+		if(count($trans)){
+			//echo "Balita";
+			$items = $trans->getItems();
+			$string = $items[0]->getOn()->getValue().$string;
+			//var_dump($string);
+			if(!$this->initials->has($items[0]->getFrom())){
+				//echo "Dodosy";
+				$this->getStr($items[0]->getFrom(), $string);
+			}
+		}
+	}
+
+	/**
+	 * @param State
+	 * @param State
+	 * @return bool
+	 */
+	function mergeable(State $state1, State $state2){
+		$str1 = "";
+		$str2 = "";
+		$this->getStr($state1, $str1);
+		$this->getStr($state2, $str2);
+		if(strcmp($str1, $str2)==0){
+			return TRUE;
+		}else{
+			return FALSE;
+		}
 	}
 
 }

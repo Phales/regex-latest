@@ -137,6 +137,15 @@ echo "Etats finaux";
 echo "<br>";
 var_dump($automate->getFinalStates());
 
+echo "String";
+
+$str = "";
+//var_dump($q2);
+$automate->getStr($q3, $str);
+var_dump($str);
+
+echo "<br>";
+
 $automate->determinize();
 
 //$automate->minimize();
@@ -163,15 +172,15 @@ var_dump($automate->getFinalStates());
 
 var_dump($automate->compatible("ac"));*/
 
+
+
 /*echo "Petits tests";
 
 var_dump($automate->IsDeterministic());
 
 echo "MCA";*/
 
-/*$mca = Helpers::mca(["ab", "abcd","bab", "abc"]);
-
-
+/*$mca = Helpers::mca(["aa", "aabd","bab", "aab", "bb"]);
 
 ?>
 
@@ -214,7 +223,7 @@ echo "MCA";*/
         <td><?php var_dump($mca->getAlphabet()); ?></td>
     </tr>
 </table>
-<?php
+<?php*/
 /*
 echo "IsInPartition";
 
@@ -381,7 +390,7 @@ var_dump($pta->compatible("bab"));*/
 echo "RPNI";
 echo "<br>";
 
-$rpni = Helpers::rpni(["TP5", "TP2", "TD1"], ["TD"]);//I+ = "Velo", "Moto", "Couture", "Voirie", "Voicure"|"aaa", "aaba", "ababa", "bb", "bbaaa" OR "a", "ab","bab", "abc"/I-="Voiture", "Coirie"|"aa", "ab", "aaaa", "ba"
+$rpni = Helpers::rpni(["a", "ab", "bab"], ["aba"]);//I+ = "Velo", "Moto", "Couture", "Voirie", "Voicure"|"aaa", "aaba", "ababa", "bb", "bbaaa" OR "a", "ab","bab", "abc"/I-="Voiture", "Coirie"|"aa", "ab", "aaaa", "ba"
 
 echo "Transitions RPNI";
 
@@ -407,4 +416,4 @@ var_dump($rpni->getFinalStates());
 
 var_dump($rpni->IsDeterministic());
 
-var_dump($rpni->compatible("TP2"));
+var_dump($rpni->compatible("aba"));

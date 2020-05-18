@@ -89,8 +89,10 @@ class StateSet extends Set
 		$str_splitee = preg_split("/(,|{|})+/", trim($str));
 		$replace_splitee = preg_split("/(,|{|})+/", trim($replace));
 		if(count(array_filter($replace_splitee, function($x) { return !empty($x); }))>=count(array_filter($str_splitee, function($x) { return !empty($x); }))){
+			//$this->setLock(FALSE);
 			unset($this->names[$str]);
 			$this->names[$replace] = TRUE;
+			//$this->setLock(TRUE);
 		}
 		return $this;
 	}
@@ -155,7 +157,9 @@ class StateSet extends Set
 			$q = new State("q".$this->num_state);
 			$this->num_state++;
 		}
+		//$this->setLock(FALSE);
 		$this->add($q);
+		//$this->setLock(TRUE);
 		return $q;
 	}
 
