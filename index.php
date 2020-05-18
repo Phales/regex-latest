@@ -418,3 +418,5 @@ echo "Etats finaux RPNI";
 var_dump($rpni->getFinalStates());
 
 var_dump($rpni->IsDeterministic());
+
+var_dump($rpni->compatible("aba"));
