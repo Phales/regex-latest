@@ -1,4 +1,7 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', TRUE);
+ini_set('display_startup_errors', TRUE);
 //require 'tests/AlphabetTest.php';
 require 'src/Automatons/Components/Alphabet/Symbol.php';
 require 'src/Automatons/Exceptions/DuplicateItemException.php';
@@ -416,4 +419,8 @@ var_dump($rpni->getFinalStates());
 
 var_dump($rpni->IsDeterministic());
 
+<<<<<<< HEAD
 var_dump($rpni->compatible("aba"));
+=======
+var_dump($rpni->compatible("aa"));
+>>>>>>> 0c03fc8e4a4211c3cd8fd57e9f40d6665d923cff
