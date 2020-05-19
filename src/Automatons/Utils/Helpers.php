@@ -313,12 +313,12 @@ class Helpers
 			$partition[] = new StateSet(array($state));
 		}
 
-		/*echo "PTA";
+		echo "PTA";
 		foreach($pta->getTransitions() as $trans){
 			var_dump("From :", $trans->getFrom());
 			var_dump("To :", $trans->getTo());
 			var_dump("On :", $trans->getOn());
-		}*/
+		}
 
 		$items_i = NULL;
 		for($i=1;$i<count($partition);$i++){
@@ -343,39 +343,39 @@ class Helpers
 				}
 				$partition1[] = $bloc_fusionne;
 
-				/*echo "Partition 1";
+				echo "Partition 1";
 				foreach($partition1 as $part){
 					var_dump($part);
-				}*/
+				}
 
 				$partition_1 = $partition1;
 				
 				$tmp1 = clone($pta);
 				$pta_derive = $tmp1->derive($partition_1);
 
-				/*echo "PTA Dérivé 1";
+				echo "PTA Dérivé 1";
 				foreach($pta_derive->getTransitions() as $trans){
 					var_dump("From :", $trans->getFrom());
 					var_dump("To :", $trans->getTo());
 					var_dump("On :", $trans->getOn());
-				}*/
+				}
 
 				$partition2 = $pta_derive->fusion_determ();
 
-				/*echo "Partition 2";
+				echo "Partition 2";
 				foreach($partition2 as $part){
 					var_dump($part);
-				}*/
+				}
 
 				$tmp2 = clone($pta);
 				$pta_derive_2 = $tmp2->derive($partition2);
 
-				/*echo "PTA Dérivé 2";
+				echo "PTA Dérivé 2";
 				foreach($pta_derive_2->getTransitions() as $trans){
 					var_dump("From :", $trans->getFrom());
 					var_dump("To :", $trans->getTo());
 					var_dump("On :", $trans->getOn());
-				}*/
+				}
 
 				if($pta_derive_2->compatibleToSample($e_negatif)){
 					$pta =  $pta_derive_2;
@@ -384,8 +384,6 @@ class Helpers
 				}
 			}
 		}
-		//$pta->determinize();
-		//$pta->minimize();
 		return $pta;
 	}
 

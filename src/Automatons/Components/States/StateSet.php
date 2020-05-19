@@ -74,6 +74,25 @@ class StateSet extends Set
 			$new_state = Helpers::assembleUnique($tmp_state, $state);
 
 			if ($tmp_state->isEqualTo($state)) {
+				//var_dump("Hello");
+				return $state;
+			}
+		}
+		return NULL;
+	}
+
+	/**
+	 * @param  string $name
+	 * @return State|NULL
+	 */
+	function getByRealName($name)
+	{
+		$tmp_state = new State($name);
+		foreach ($this as $state) {
+			//$new_state = Helpers::assembleUnique($state, $tmp_state);
+			$set = new StateSet(array($tmp_state));
+			if ($set->has($state)){
+				var_dump($tmp_state);
 				return $state;
 			}
 		}

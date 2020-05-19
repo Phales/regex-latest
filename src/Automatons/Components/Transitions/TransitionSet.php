@@ -41,7 +41,9 @@ class TransitionSet extends Set
 	function add($item)
 	{
 		parent::add($item);
-		$item->getTo()->lock();
+		if($item->getTo() instanceof StateSet){
+			$item->getTo()->lock();
+		}
 		return $this;
 	}
 

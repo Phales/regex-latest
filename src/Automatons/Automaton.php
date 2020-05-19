@@ -17,6 +17,8 @@ use Autto\Components\Alphabet\Alphabet;
 use Autto\Components\Alphabet\Symbol;
 use Autto\Components\Transitions\Transition;
 use Autto\Components\Transitions\TransitionSet;
+use Autto\Components\Transitions\SingleTransition;
+use Autto\Components\Transitions\SingleTransitionSet;
 use Autto\Utils\Helpers;
 
 
@@ -458,6 +460,8 @@ class Automaton
 			$this->finals->has($joined_state) && !$finals->has($joined_state, TRUE, TRUE);
 		}
 
+		//var_dump($states);
+
 		foreach($states as $new_state){
 			foreach($this->alphabet as $symbol){
 				$to_set = new StateSet;
@@ -474,7 +478,8 @@ class Automaton
 				}
 				if(!is_null($tos) && count($to_set)){
 					$joined_state = Helpers::joinStates($to_set);
-					//$joined_state = $states->getByName($joined_state->getName());
+					//$joined_state = $states->getByRealName($joined_state->getName());
+					//var_dump($joined_state);
 					/*if($states->has($joined_state)){
 						var_dump("Pick");
 						$joined_state = $states->getByName($joined_state->getName());
@@ -488,6 +493,7 @@ class Automaton
 
 		$this->construct($states, $this->alphabet, $transitions, $initials, $finals);
 
+		$this->mergeAllTransitions();
 		//$this->removeIllegalTransitions();
 
 		$this->simplifyBySplit();
@@ -750,6 +756,85 @@ class Automaton
 		}else{
 			return FALSE;
 		}
+	}
+
+	/** @return string[] */
+	function transitionsToStrings(){
+        $strings = array();
+		$target_names = array();
+		$i=0;
+        foreach($this->getInitialStates() as $state){
+			$target_names[] = $state->getName();
+		}
+        foreach($this->getSingleTransitions()->getItems() as $transition){
+            if(array_search($transition->getTo()->getName(), $target_names)===false){
+                $target_names[] = $transition->getTo()->getName();
+            }
+        }
+        foreach($target_names as $name){
+            $strings[$i] = $name."=";
+            $j=0;
+            foreach($this->getSingleTransitions()->getItems() as $transition){
+                if(strcmp($transition->getTo()->getName(), $name)==0){
+                    if($j!=0){
+                        $strings[$i] = $strings[$i]."+";
+                    }
+                    $strings[$i]=$strings[$i].$transition->getFrom()->getName().$transition->getOn()->getValue();
+                    $j++;
+                }
+			}
+			foreach($this->getInitialStates() as $state){
+				if(strcmp($state->getName(), $name)==0){
+					if($j!=0){
+						$strings[$i] = $strings[$i]."+";
+					}
+					$strings[$i] = $strings[$i]."£";
+				}
+			}
+            $i++;
+        }
+        return $strings;
+	}
+
+	/** @return SingleTransitionSet */
+	function getSingleTransitions(){
+		$transitions = new SingleTransitionSet;
+		foreach($this->getTransitions()->getItems() as $transition){
+			if($transition->getTo() instanceof StateSet){
+				foreach($transition->getTo() as $target){
+					$trans = new SingleTransition($transition->getFrom(), $target, $transition->getOn());
+					if(!$transitions->has($trans)){
+						$transitions->add($trans);
+					}
+				}
+			}else{
+				$trans = new SingleTransition($transition->getFrom(), $transition->getTo(), $transition->getOn());
+				if(!$transitions->has($trans)){
+					$transitions->add($trans);
+				}
+			}
+		}
+		return $transitions;
+	}
+
+	/**
+	 * @return Automaton //$this
+	 */
+	function mergeAllTransitions(){
+		$transitions = new TransitionSet;
+		$set1 = clone($this->states);
+		$set2 = clone($this->states);
+		foreach($set1 as $state1){
+			foreach($set2 as $state2){
+				foreach($this->alphabet as $symbol){
+					$t = new Transition($state1, new StateSet(array($state2)), $symbol);
+					$this->transitions->has($t) && !$transitions->has($t, TRUE, TRUE);
+				}
+			}
+		}
+		$this->transitions = $transitions;
+		$this->mergeTransitions();
+		return $this;
 	}
 
 }

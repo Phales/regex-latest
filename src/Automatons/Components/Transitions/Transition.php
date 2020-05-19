@@ -35,7 +35,7 @@ class Transition
 	 * @param  StateSet $to
 	 * @param  Symbol $on
 	 */
-	function __construct(State $from, StateSet $to, Symbol $on)
+	function __construct(State $from, $to, Symbol $on)
 	{
 		$this->from = $from;
 		$this->to = $to;

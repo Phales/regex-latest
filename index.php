@@ -11,8 +11,8 @@ require 'src/Automatons/Components/States/State.php';
 require 'src/Automatons/Components/States/StateSet.php';
 require 'src/Automatons/Components/Transitions/Transition.php';
 require 'src/Automatons/Components/Transitions/TransitionSet.php';
-//require 'src/Automatons/Components/Transitions/SingleTransition.php';
-//require 'src/Automatons/Components/Transitions/SingleTransitionSet.php';
+require 'src/Automatons/Components/Transitions/SingleTransition.php';
+require 'src/Automatons/Components/Transitions/SingleTransitionSet.php';
 require 'src/Automatons/Automaton.php';
 require 'src/Automatons/StateGroup.php';
 require 'src/Automatons/StateGroupSet.php';
@@ -420,3 +420,11 @@ var_dump($rpni->getFinalStates());
 var_dump($rpni->IsDeterministic());
 
 var_dump($rpni->compatible("aba"));
+
+echo "Transitions To Strings";
+
+$strings = $rpni->transitionsToStrings();
+
+foreach($strings as $s){
+    var_dump($s);
+}
